@@ -55,6 +55,8 @@ class Product(InitLoggerMixin, BaseProduct):
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
         """Конструктор класса"""
+        if quantity == 0:
+            raise ValueError('Товар с нулевым количеством не может быть добавлен')
         super().__init__(name, description, price, quantity)
 
     def __str__(self) -> str:
@@ -145,6 +147,15 @@ class Category:
     def __str__(self) -> str:
         all_product_count_in_category = sum([product.quantity for product in self.__products])
         return f'{self.__name}, количество продуктов: {all_product_count_in_category} шт.'
+
+    def middle_price(self):
+        try:
+            all_prices = [product.price for product in self.__products]
+            avg_price = sum(all_prices) / len(all_prices)
+            return round(avg_price, 2)
+        except ZeroDivisionError as e:
+            print(f'{e}: Список товаров пустой')
+            return 0
 
     def add_product(self, new_product_of_category: Optional[Product]):
         """Добавляет продукт к категории"""

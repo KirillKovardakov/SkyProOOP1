@@ -12,6 +12,11 @@ def test_product(fixture_product):
     assert product1.quantity == 5
 
 
+def test_product_raises():
+    with pytest.raises(ValueError):
+        Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 0)
+
+
 def test_new_product(fixture_product, fixture_category):
     category1 = fixture_category
     new_product = Product.new_product(
@@ -30,7 +35,7 @@ def test_new_product(fixture_product, fixture_category):
     assert new_product.description == '256GB, Серый цвет, 200MP камера'
     assert new_product.price == 380000.0
     assert new_product.quantity == 1
-пше
+
 
 def test_product_mystical_methods(fixture_product):
     product1 = fixture_product
@@ -83,13 +88,30 @@ def test_product_add(fixture_lawngrass, fixture_smartphone):
     smartphone1 = fixture_smartphone
     grass1 = fixture_lawngrass
     with pytest.raises(TypeError):
-        smartphone1 + grass1
+        var = (smartphone1 + grass1)
 
 
-def test_categoty_add_product(fixture_category):
+def test_category_add_product(fixture_category):
     category1 = fixture_category
     with pytest.raises(TypeError):
         category1.add_product("Not a product")
+
+
+def test_category_middle_price(fixture_category, capsys):
+    category1 = fixture_category
+    category_empty = Category("Пустая категория", "Категория без продуктов", [])
+
+    assert category1.middle_price() == 140333.33
+    assert category_empty.middle_price() == 0
+
+
+def test_category_middle_price_exceptions(capsys):
+    category_empty = Category("Пустая категория", "Категория без продуктов", [])
+    category_empty.middle_price()
+    captured = capsys.readouterr()
+    assert 'division by zero: Список товаров пустой' in captured.out
+
+
 
 def test_set_price_zero_or_negative(fixture_product, capsys):
     fixture_product.price = 0
@@ -101,6 +123,7 @@ def test_set_price_zero_or_negative(fixture_product, capsys):
     captured = capsys.readouterr()
     assert "Цена не должна быть нулевая или отрицательная" in captured.out
     assert fixture_product.price == 180000.0
+
 
 @patch("builtins.input", return_value='y')
 def test_set_price_decrease_confirm(mock_input, fixture_product):
